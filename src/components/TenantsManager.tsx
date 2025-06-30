@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, Phone, Mail } from 'lucide-react';
+import { Plus, Edit, Trash2, Phone, Mail, Users } from 'lucide-react';
 
 interface Tenant {
   id: string;
