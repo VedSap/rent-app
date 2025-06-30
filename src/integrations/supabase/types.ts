@@ -9,7 +9,113 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      rent_payments: {
+        Row: {
+          amount_paid: number
+          created_at: string
+          date_paid: string
+          id: string
+          notes: string | null
+          payment_method: string
+          status: string
+          tenant_id: string
+        }
+        Insert: {
+          amount_paid: number
+          created_at?: string
+          date_paid: string
+          id?: string
+          notes?: string | null
+          payment_method?: string
+          status?: string
+          tenant_id: string
+        }
+        Update: {
+          amount_paid?: number
+          created_at?: string
+          date_paid?: string
+          id?: string
+          notes?: string | null
+          payment_method?: string
+          status?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rent_payments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenants: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          move_in_date: string | null
+          name: string
+          notes: string | null
+          owner_id: string
+          phone: string | null
+          rent_amount: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          move_in_date?: string | null
+          name: string
+          notes?: string | null
+          owner_id: string
+          phone?: string | null
+          rent_amount: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          move_in_date?: string | null
+          name?: string
+          notes?: string | null
+          owner_id?: string
+          phone?: string | null
+          rent_amount?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
