@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Users, DollarSign, Calendar, AlertCircle } from 'lucide-react';
+import { Users, IndianRupee, Calendar, AlertCircle } from 'lucide-react';
 
 interface DashboardStats {
   totalTenants: number;
@@ -104,10 +104,10 @@ export const Dashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <IndianRupee className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats.totalRevenue.toFixed(2)}</div>
+            <div className="text-2xl font-bold">{stats.totalRevenue.toFixed(2)}</div>
             <p className="text-xs text-muted-foreground">
               Collected rent payments
             </p>
@@ -141,22 +141,22 @@ export const Dashboard = () => {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Welcome to RentApp! 🎉</CardTitle>
-          <CardDescription>
-            Your complete property management solution
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <p>• Manage your tenants and their information</p>
-            <p>• Track rent payments and payment history</p>
-            <p>• Monitor outstanding balances and overdue payments</p>
-            <p>• Keep detailed records for tax purposes</p>
-          </div>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Welcome to RentApp</CardTitle>
+            <CardDescription>
+              A simple way to manage your properties and tenants.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-1 text-sm text-muted-foreground">
+              <p>• Add and manage tenant information</p>
+              <p>• Track rent payments and history</p>
+              <p>• View outstanding balances</p>
+            </div>
+          </CardContent>
+        </Card>
+
     </div>
   );
 };

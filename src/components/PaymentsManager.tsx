@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
-import { Plus, DollarSign } from 'lucide-react';
+import { Plus,IndianRupee } from 'lucide-react';
 
 interface Payment {
   id: string;
@@ -286,7 +286,7 @@ export const PaymentsManager = () => {
       {tenants.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <DollarSign className="h-12 w-12 text-muted-foreground mb-4" />
+            <IndianRupee className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No tenants found</h3>
             <p className="text-muted-foreground text-center mb-4">
               You need to add tenants before you can record payments.
@@ -296,7 +296,7 @@ export const PaymentsManager = () => {
       ) : payments.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <DollarSign className="h-12 w-12 text-muted-foreground mb-4" />
+            <IndianRupee className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No payments recorded</h3>
             <p className="text-muted-foreground text-center mb-4">
               Start by recording your first rent payment.
