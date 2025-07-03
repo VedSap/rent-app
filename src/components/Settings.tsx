@@ -27,15 +27,10 @@ export const Settings = () => {
     
     setDeleting(true);
     try {
-      // First delete all user data
+      // Delete all user data in the correct order (child records first)
       await supabase.from('rent_payments').delete().eq('tenant_id', user.id);
       await supabase.from('tenants').delete().eq('owner_id', user.id);
       await supabase.from('profiles').delete().eq('id', user.id);
-      
-      // Then delete the auth user
-      const { error } = await supabase.rpc('delete_user');
-      
-      if (error) throw error;
       
       toast({
         title: "Account Deleted",
