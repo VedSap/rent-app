@@ -25,7 +25,7 @@ export const MainApp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
       
       {/* Main content */}

@@ -20,10 +20,59 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
+    // Get initial session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (!mounted) return;
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          setLoading(false);
+          return;
+        }
+
+        if (session?.user) {
+          // Verify user still exists in database
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('id', session.user.id)
+            .single();
+          
+          if (profileError || !profile) {
+            console.log('User profile not found, signing out');
+            await supabase.auth.signOut();
+            setSession(null);
+            setUser(null);
+          } else {
+            setSession(session);
+            setUser(session.user);
+          }
+        } else {
+          setSession(null);
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Error in getInitialSession:', error);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    getInitialSession();
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.id);
+        
+        if (!mounted) return;
         
         if (session?.user) {
           // Verify user still exists in database
@@ -46,39 +95,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setSession(null);
           setUser(null);
         }
+        
         setLoading(false);
       }
     );
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        // Verify user still exists in database
-        supabase
-          .from('profiles')
-          .select('id')
-          .eq('id', session.user.id)
-          .single()
-          .then(({ data: profile, error }) => {
-            if (error || !profile) {
-              console.log('User profile not found, signing out');
-              supabase.auth.signOut();
-              setSession(null);
-              setUser(null);
-            } else {
-              setSession(session);
-              setUser(session.user);
-            }
-            setLoading(false);
-          });
-      } else {
-        setSession(null);
-        setUser(null);
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, fullName?: string) => {

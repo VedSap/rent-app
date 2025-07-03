@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { ThemeToggle } from './ThemeToggle';
 import { Home, Users, CreditCard, Settings, LogOut, Menu, X } from 'lucide-react';
 
 interface NavigationProps {
@@ -27,24 +28,27 @@ export const Navigation = ({ activeTab, setActiveTab }: NavigationProps) => {
   return (
     <>
       {/* Mobile Header */}
-      <div className="lg:hidden bg-white shadow-sm border-b p-4 flex items-center justify-between">
+      <div className="lg:hidden bg-background border-b p-4 flex items-center justify-between">
         <h1 className="text-xl font-bold text-primary">🏠 RentApp</h1>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </Button>
+        <div className="flex items-center space-x-2">
+          <ThemeToggle />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </Button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 bg-white">
+        <div className="lg:hidden fixed inset-0 z-50 bg-background">
           <div className="p-4 border-b flex items-center justify-between">
             <h1 className="text-xl font-bold text-primary">🏠 RentApp</h1>
             <Button
-              variant="ghost"
+              variant="ghost" 
               size="icon"
               onClick={() => setMobileMenuOpen(false)}
             >
@@ -70,7 +74,7 @@ export const Navigation = ({ activeTab, setActiveTab }: NavigationProps) => {
               );
             })}
             <div className="pt-4 border-t">
-              <div className="text-sm text-gray-600 mb-2">
+              <div className="text-sm text-muted-foreground mb-2">
                 {user?.email}
               </div>
               <Button
@@ -88,9 +92,10 @@ export const Navigation = ({ activeTab, setActiveTab }: NavigationProps) => {
 
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
-        <div className="flex flex-col flex-grow bg-white border-r shadow-sm">
-          <div className="px-6 py-4 border-b">
+        <div className="flex flex-col flex-grow bg-background border-r">
+          <div className="px-6 py-4 border-b flex items-center justify-between">
             <h1 className="text-2xl font-bold text-primary">🏠 RentApp</h1>
+            <ThemeToggle />
           </div>
           <nav className="flex-1 px-4 py-4 space-y-2">
             {navItems.map((item) => {
@@ -109,7 +114,7 @@ export const Navigation = ({ activeTab, setActiveTab }: NavigationProps) => {
             })}
           </nav>
           <div className="px-4 py-4 border-t">
-            <div className="text-sm text-gray-600 mb-2">
+            <div className="text-sm text-muted-foreground mb-2">
               {user?.email}
             </div>
             <Button
