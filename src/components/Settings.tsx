@@ -32,6 +32,18 @@ export const Settings = () => {
       await supabase.from('tenants').delete().eq('owner_id', user.id);
       await supabase.from('profiles').delete().eq('id', user.id);
       
+      // Delete the user from Supabase Auth
+      const { error: deleteError } = await supabase.auth.admin.deleteUser(user.id);
+      
+      if (deleteError) {
+        console.error('Error deleting user from auth:', deleteError);
+        // If admin delete fails, try user delete
+        const { error: userDeleteError } = await supabase.auth.deleteUser();
+        if (userDeleteError) {
+          throw userDeleteError;
+        }
+      }
+      
       toast({
         title: "Account Deleted",
         description: "Your account and all associated data have been permanently deleted."
