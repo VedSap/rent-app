@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -38,6 +38,21 @@ export const TenantForm = ({ editingTenant, onTenantSaved, onEditingChange }: Te
     notes: ''
   });
   const { user } = useAuth();
+
+  // Update form data when editingTenant changes
+  useEffect(() => {
+    if (editingTenant) {
+      setFormData({
+        name: editingTenant.name,
+        email: editingTenant.email || '',
+        phone: editingTenant.phone || '',
+        rent_amount: editingTenant.rent_amount.toString(),
+        move_in_date: editingTenant.move_in_date || '',
+        notes: editingTenant.notes || ''
+      });
+      setDialogOpen(true);
+    }
+  }, [editingTenant]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,21 +112,25 @@ export const TenantForm = ({ editingTenant, onTenantSaved, onEditingChange }: Te
     }
   };
 
-  const handleEdit = (tenant: Tenant) => {
-    onEditingChange(tenant);
+  const handleClose = () => {
+    setDialogOpen(false);
+    onEditingChange(null);
     setFormData({
-      name: tenant.name,
-      email: tenant.email || '',
-      phone: tenant.phone || '',
-      rent_amount: tenant.rent_amount.toString(),
-      move_in_date: tenant.move_in_date || '',
-      notes: tenant.notes || ''
+      name: '',
+      email: '',
+      phone: '',
+      rent_amount: '',
+      move_in_date: '',
+      notes: ''
     });
-    setDialogOpen(true);
   };
 
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+    <Dialog open={dialogOpen} onOpenChange={(open) => {
+      if (!open) {
+        handleClose();
+      }
+    }}>
       <DialogTrigger asChild>
         <Button onClick={() => {
           onEditingChange(null);
@@ -194,7 +213,7 @@ export const TenantForm = ({ editingTenant, onTenantSaved, onEditingChange }: Te
             />
           </div>
           <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+            <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
             <Button type="submit">

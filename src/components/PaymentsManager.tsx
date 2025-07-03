@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +11,8 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
-import { Plus,IndianRupee } from 'lucide-react';
+import { Plus, IndianRupee } from 'lucide-react';
+import { PaymentActions } from './PaymentActions';
 
 interface Payment {
   id: string;
@@ -38,6 +38,7 @@ export const PaymentsManager = () => {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingPayment, setEditingPayment] = useState<Payment | null>(null);
   const [formData, setFormData] = useState({
     tenant_id: '',
     amount_paid: '',
@@ -52,6 +53,20 @@ export const PaymentsManager = () => {
     fetchPayments();
     fetchTenants();
   }, [user]);
+
+  useEffect(() => {
+    if (editingPayment) {
+      setFormData({
+        tenant_id: editingPayment.tenant_id,
+        amount_paid: editingPayment.amount_paid.toString(),
+        date_paid: editingPayment.date_paid,
+        payment_method: editingPayment.payment_method,
+        status: editingPayment.status,
+        notes: editingPayment.notes || ''
+      });
+      setDialogOpen(true);
+    }
+  }, [editingPayment]);
 
   const fetchPayments = async () => {
     if (!user) return;
@@ -110,26 +125,32 @@ export const PaymentsManager = () => {
         notes: formData.notes || null
       };
 
-      const { error } = await supabase
-        .from('rent_payments')
-        .insert([paymentData]);
+      if (editingPayment) {
+        const { error } = await supabase
+          .from('rent_payments')
+          .update(paymentData)
+          .eq('id', editingPayment.id);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Payment recorded successfully"
-      });
+        toast({
+          title: "Success",
+          description: "Payment updated successfully"
+        });
+      } else {
+        const { error } = await supabase
+          .from('rent_payments')
+          .insert([paymentData]);
 
-      setDialogOpen(false);
-      setFormData({
-        tenant_id: '',
-        amount_paid: '',
-        date_paid: new Date().toISOString().split('T')[0],
-        payment_method: 'cash',
-        status: 'completed',
-        notes: ''
-      });
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Payment recorded successfully"
+        });
+      }
+
+      handleClose();
       fetchPayments();
     } catch (error: any) {
       toast({
@@ -138,6 +159,23 @@ export const PaymentsManager = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const handleClose = () => {
+    setDialogOpen(false);
+    setEditingPayment(null);
+    setFormData({
+      tenant_id: '',
+      amount_paid: '',
+      date_paid: new Date().toISOString().split('T')[0],
+      payment_method: 'cash',
+      status: 'completed',
+      notes: ''
+    });
+  };
+
+  const handleEdit = (payment: Payment) => {
+    setEditingPayment(payment);
   };
 
   const getStatusColor = (status: string) => {
@@ -166,7 +204,11 @@ export const PaymentsManager = () => {
             Track and manage rent payments
           </p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog open={dialogOpen} onOpenChange={(open) => {
+          if (!open) {
+            handleClose();
+          }
+        }}>
           <DialogTrigger asChild>
             <Button disabled={tenants.length === 0}>
               <Plus className="h-4 w-4 mr-2" />
@@ -175,9 +217,11 @@ export const PaymentsManager = () => {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Record New Payment</DialogTitle>
+              <DialogTitle>
+                {editingPayment ? 'Edit Payment' : 'Record New Payment'}
+              </DialogTitle>
               <DialogDescription>
-                Add a new rent payment to the system
+                {editingPayment ? 'Update payment information' : 'Add a new rent payment to the system'}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -190,7 +234,7 @@ export const PaymentsManager = () => {
                     setFormData({ 
                       ...formData, 
                       tenant_id: value,
-                      amount_paid: tenant?.rent_amount.toString() || ''
+                      amount_paid: !editingPayment && tenant ? tenant.rent_amount.toString() : formData.amount_paid
                     });
                   }}
                   required
@@ -201,7 +245,7 @@ export const PaymentsManager = () => {
                   <SelectContent>
                     {tenants.map((tenant) => (
                       <SelectItem key={tenant.id} value={tenant.id}>
-                        {tenant.name} (${tenant.rent_amount}/month)
+                        {tenant.name} (₹{tenant.rent_amount}/month)
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -271,11 +315,11 @@ export const PaymentsManager = () => {
                 />
               </div>
               <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                <Button type="button" variant="outline" onClick={handleClose}>
                   Cancel
                 </Button>
                 <Button type="submit">
-                  Record Payment
+                  {editingPayment ? 'Update' : 'Record'} Payment
                 </Button>
               </div>
             </form>
@@ -314,6 +358,7 @@ export const PaymentsManager = () => {
                 <TableHead>Method</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Notes</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -324,7 +369,7 @@ export const PaymentsManager = () => {
                   </TableCell>
                   <TableCell>
                     <div className="font-semibold text-green-600">
-                      ${payment.amount_paid.toFixed(2)}
+                      ₹{payment.amount_paid.toFixed(2)}
                     </div>
                   </TableCell>
                   <TableCell>
@@ -342,6 +387,13 @@ export const PaymentsManager = () => {
                   </TableCell>
                   <TableCell>
                     {payment.notes || 'No notes'}
+                  </TableCell>
+                  <TableCell>
+                    <PaymentActions
+                      payment={payment}
+                      onEdit={handleEdit}
+                      onDelete={fetchPayments}
+                    />
                   </TableCell>
                 </TableRow>
               ))}
