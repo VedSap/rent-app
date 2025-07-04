@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { AuthForm } from "@/components/AuthForm";
+import { EnhancedAuthForm } from "@/components/EnhancedAuthForm";
+import { AuthCallback } from "@/components/AuthCallback";
 import { MainApp } from "@/components/MainApp";
 import { useEffect, useState } from "react";
 
@@ -50,7 +52,13 @@ const AppContent = () => {
     );
   }
 
-  return user ? <MainApp /> : <AuthForm />;
+  return (
+    <Routes>
+      <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/auth" element={<EnhancedAuthForm />} />
+      <Route path="*" element={user ? <MainApp /> : <AuthForm />} />
+    </Routes>
+  );
 };
 
 const App = () => (
@@ -61,9 +69,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Routes>
-              <Route path="*" element={<AppContent />} />
-            </Routes>
+            <AppContent />
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
