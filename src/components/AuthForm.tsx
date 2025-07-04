@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +15,26 @@ export const AuthForm = () => {
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
+
+  const checkEmailExists = async (email: string): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', email)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error checking email:', error);
+        return false;
+      }
+      
+      return !!data;
+    } catch (error) {
+      console.error('Error in checkEmailExists:', error);
+      return false;
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,11 +54,23 @@ export const AuthForm = () => {
         });
         setIsForgotPassword(false);
       } else if (isLogin) {
+        // Check if email exists in profiles table before attempting login
+        const emailExists = await checkEmailExists(email);
+        
+        if (!emailExists) {
+          toast({
+            title: "Login Error",
+            description: "Credentials not matched. Please check your email and try again.",
+            variant: "destructive"
+          });
+          return;
+        }
+        
         const { error } = await signIn(email, password);
         if (error) {
           toast({
             title: "Login Error",
-            description: error.message,
+            description: "Credentials not matched. Please check your email and password.",
             variant: "destructive"
           });
         }
