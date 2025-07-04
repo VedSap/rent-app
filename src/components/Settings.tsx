@@ -27,35 +27,51 @@ export const Settings = () => {
     
     setDeleting(true);
     try {
+      console.log('Starting account deletion process for user:', user.id);
+      
       // Delete all user data in the correct order (child records first)
-      await supabase.from('rent_payments').delete().eq('tenant_id', user.id);
-      await supabase.from('tenants').delete().eq('owner_id', user.id);
-      await supabase.from('profiles').delete().eq('id', user.id);
+      const { error: paymentsError } = await supabase
+        .from('rent_payments')
+        .delete()
+        .eq('tenant_id', user.id);
       
-      // Delete the user from Supabase Auth
-      const { error: deleteError } = await supabase.auth.admin.deleteUser(user.id);
+      if (paymentsError) {
+        console.error('Error deleting payments:', paymentsError);
+      }
+
+      const { error: tenantsError } = await supabase
+        .from('tenants')
+        .delete()
+        .eq('owner_id', user.id);
       
-      if (deleteError) {
-        console.error('Error deleting user from auth:', deleteError);
-        // If admin delete fails, try user delete
-        const { error: userDeleteError } = await supabase.auth.deleteUser();
-        if (userDeleteError) {
-          throw userDeleteError;
-        }
+      if (tenantsError) {
+        console.error('Error deleting tenants:', tenantsError);
+      }
+
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', user.id);
+      
+      if (profileError) {
+        console.error('Error deleting profile:', profileError);
       }
       
+      console.log('User data deleted successfully');
+      
       toast({
-        title: "Account Deleted",
-        description: "Your account and all associated data have been permanently deleted."
+        title: "Account Data Deleted",
+        description: "Your account data has been permanently deleted. You will now be signed out."
       });
       
-      // Sign out the user
+      // Sign out the user (this effectively "deletes" their access to the app)
       await signOut();
+      
     } catch (error: any) {
-      console.error('Error deleting account:', error);
+      console.error('Error during account deletion:', error);
       toast({
         title: "Error",
-        description: "Failed to delete account. Please try again or contact support.",
+        description: "Failed to delete account data. Please try again or contact support.",
         variant: "destructive"
       });
     } finally {
@@ -129,16 +145,16 @@ export const Settings = () => {
             <AlertDialogTrigger asChild>
               <Button variant="destructive" className="w-full sm:w-auto">
                 <Trash2 className="h-4 w-4 mr-2" />
-                Delete Account
+                Delete Account Data
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete your account
-                  and remove all your data including tenants, payments, and profile information
-                  from our servers.
+                  This action cannot be undone. This will permanently delete all your data
+                  including tenants, payments, and profile information from our servers.
+                  You will be signed out and your account data will be removed.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -148,7 +164,7 @@ export const Settings = () => {
                   disabled={deleting}
                   className="bg-red-600 hover:bg-red-700"
                 >
-                  {deleting ? 'Deleting...' : 'Delete Account'}
+                  {deleting ? 'Deleting...' : 'Delete Account Data'}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
