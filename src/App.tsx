@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
-import { AuthForm } from "@/components/AuthForm";
+import { AuthFormContainer } from "@/components/auth/AuthFormContainer";
 import { EnhancedAuthForm } from "@/components/EnhancedAuthForm";
 import { AuthCallback } from "@/components/AuthCallback";
 import { MainApp } from "@/components/MainApp";
@@ -56,7 +56,7 @@ const AppContent = () => {
     <Routes>
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/auth" element={<EnhancedAuthForm />} />
-      <Route path="*" element={user ? <MainApp /> : <AuthForm />} />
+      <Route path="*" element={user ? <MainApp /> : <AuthFormContainer />} />
     </Routes>
   );
 };
