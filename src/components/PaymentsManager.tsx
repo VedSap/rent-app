@@ -117,6 +117,7 @@ export const PaymentsManager = () => {
 
     try {
       const paymentData = {
+        owner_id: user.id,
         tenant_id: formData.tenant_id,
         amount_paid: parseFloat(formData.amount_paid),
         date_paid: formData.date_paid,

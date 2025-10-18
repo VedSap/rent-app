@@ -60,7 +60,21 @@ export type Database = {
             foreignKeyName: "communications_recipient_id_fkey"
             columns: ["recipient_id"]
             isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communications_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
             referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communications_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -104,6 +118,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "owner_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "owner_profiles_user_id_fkey"
             columns: ["user_id"]
@@ -233,6 +254,13 @@ export type Database = {
             foreignKeyName: "properties_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "properties_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
             referencedRelation: "user_profiles"
             referencedColumns: ["id"]
           },
@@ -241,6 +269,53 @@ export type Database = {
             columns: ["owner_profile_id"]
             isOneToOne: false
             referencedRelation: "owner_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rent_payments: {
+        Row: {
+          amount_paid: number
+          created_at: string
+          date_paid: string
+          id: string
+          notes: string | null
+          owner_id: string
+          payment_method: string | null
+          status: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount_paid: number
+          created_at?: string
+          date_paid?: string
+          id?: string
+          notes?: string | null
+          owner_id: string
+          payment_method?: string | null
+          status?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount_paid?: number
+          created_at?: string
+          date_paid?: string
+          id?: string
+          notes?: string | null
+          owner_id?: string
+          payment_method?: string | null
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rent_payments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
@@ -294,6 +369,13 @@ export type Database = {
             foreignKeyName: "renter_profiles_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "renter_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
             referencedRelation: "user_profiles"
             referencedColumns: ["id"]
           },
@@ -329,6 +411,45 @@ export type Database = {
         }
         Relationships: []
       }
+      tenants: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          move_in_date: string | null
+          name: string
+          notes: string | null
+          owner_id: string
+          phone: string | null
+          rent_amount: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          move_in_date?: string | null
+          name: string
+          notes?: string | null
+          owner_id: string
+          phone?: string | null
+          rent_amount: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          move_in_date?: string | null
+          name?: string
+          notes?: string | null
+          owner_id?: string
+          phone?: string | null
+          rent_amount?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_profiles: {
         Row: {
           created_at: string
@@ -355,7 +476,30 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string | null
+          role: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string | null
+          role?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string | null
+          role?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
